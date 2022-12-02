@@ -38,16 +38,7 @@ fn part_1(input: &Vec<[i32; 2]>) {
     for letters in input {
         round[0] = letters[0]  - b'A' as i32;
         round[1] = letters[1]  - b'X' as i32;
-        if (round[0] + 1) % 3 == round[1] {
-            // win
-            total_score += 6 + round[1] + 1
-        } else if round[0] == round[1] {
-            // draw
-            total_score += 3 + round[1] + 1
-        } else {
-            // loss
-            total_score += round[1] + 1
-        }
+        total_score += round[1] + 1 + 3 * ((round[1] - round[0] + 4) % 3);
     }
     let elapsed = start.elapsed();
     println!("Part 1 total score: {} (took {:.2?})", total_score, elapsed);
@@ -60,22 +51,8 @@ fn part_2(input: &Vec<[i32; 2]>) {
     for letters in input {
         round[0] = letters[0]  - b'A' as i32;
         round[1] = letters[1]  - b'X' as i32;
-        round[1] = round[0] + round[1] - 1;
-        if round[1] < 0 {
-            round[1] = 2;
-        } else if round[1] > 2 {
-            round[1] = 0
-        }
-        if (round[0] + 1) % 3 == round[1] {
-            // win
-            total_score += 6 + round[1] + 1
-        } else if round[0] == round[1] {
-            // draw
-            total_score += 3 + round[1] + 1
-        } else {
-            // loss
-            total_score += round[1] + 1
-        }
+        round[1] = (round[0] + round[1] - 1 + 3) % 3;
+        total_score += round[1] + 1 + 3 * ((round[1] - round[0] + 4) % 3);
     }
     let elapsed = start.elapsed();
     println!("Part 2 total score: {} (took {:.2?})", total_score, elapsed);
