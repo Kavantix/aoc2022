@@ -51,8 +51,9 @@ fn part_2(input: &Vec<[i32; 2]>) {
     for letters in input {
         round[0] = letters[0]  - b'A' as i32;
         round[1] = letters[1]  - b'X' as i32;
-        round[1] = (round[0] + round[1] - 1 + 3) % 3;
-        total_score += round[1] + 1 + 3 * ((round[1] - round[0] + 4) % 3);
+        let win_score = round[1] * 3;
+        let my_pick = (round[0] + round[1] - 1 + 3) % 3;
+        total_score += my_pick + 1 + win_score;
     }
     let elapsed = start.elapsed();
     println!("Part 2 total score: {} (took {:.2?})", total_score, elapsed);
