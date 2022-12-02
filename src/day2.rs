@@ -1,4 +1,5 @@
 use std::{fs::read_to_string, vec};
+use std::time::Instant;
 
 
 pub fn run() {
@@ -6,65 +7,76 @@ pub fn run() {
     let _example = "A Y
 B X
 C Z";
-    use std::time::Instant;
-    let start = Instant::now();
     let input = read_to_string("input-day2.txt").unwrap();
-
-    part_1(&input);
-    part_2(&input);
-
+    let start = Instant::now();
+    let parsed = parse_input(&input);
     let elapsed = start.elapsed();
-    println!("Elapsed: {:.2?}", elapsed);
+    println!("Parsing took: {:.2?}", elapsed);
+
+    part_1(&parsed);
+    part_2(&parsed);
+
 }
 
-fn part_1(input: &str) {
-    let mut total_score = 0;
-    for round in input.lines().map(|line| {
-        let mut indices = vec![];
-        let letters: Vec<char> = line.replace(" ", "").chars().collect();
-        indices.push(letters[0] as u32 - 'A' as u32);
-        indices.push(letters[1] as u32 - 'X' as u32);
-        indices
-    }) {
-            if (round[0] + 1) % 3 == round[1] {
-                // win
-                total_score += 6 + round[1] + 1
-            } else if round[0] == round[1] {
-                // draw
-                total_score += 3 + round[1] + 1
-            } else {
-                // loss
-                total_score += round[1] + 1
-            }
+fn parse_input(input: &str) -> Vec<[i32; 2]> {
+    let letters = input.as_bytes();
+    let mut rounds = letters.len() / 4;
+    if letters.len() % 4 != 0 {
+        rounds += 1;
     }
-    println!("Part 1 total score: {}", total_score);
+    let mut result = Vec::with_capacity(rounds);
+    for i in 0..rounds {
+        result.push([letters[i*4] as i32, letters[i*4 + 2] as i32]);
+    }
+    result
 }
 
-fn part_2(input: &str) {
+fn part_1(input: &Vec<[i32; 2]>) {
+    let start = Instant::now();
     let mut total_score = 0;
-    for mut round in input.lines().map(|line| {
-        let mut indices = vec![];
-        let letters: Vec<char> = line.replace(" ", "").chars().collect();
-        indices.push(letters[0] as i32 - 'A' as i32);
-        indices.push(letters[1] as i32 - 'X' as i32);
-        indices
-    }) {
-            round[1] = round[0] + round[1] - 1;
-            if round[1] < 0 {
-                round[1] = 2;
-            } else if round[1] > 2 {
-                round[1] = 0
-            }
-            if (round[0] + 1) % 3 == round[1] {
-                // win
-                total_score += 6 + round[1] + 1
-            } else if round[0] == round[1] {
-                // draw
-                total_score += 3 + round[1] + 1
-            } else {
-                // loss
-                total_score += round[1] + 1
-            }
+    let mut round = vec![0, 0];
+    for letters in input {
+        round[0] = letters[0]  - b'A' as i32;
+        round[1] = letters[1]  - b'X' as i32;
+        if (round[0] + 1) % 3 == round[1] {
+            // win
+            total_score += 6 + round[1] + 1
+        } else if round[0] == round[1] {
+            // draw
+            total_score += 3 + round[1] + 1
+        } else {
+            // loss
+            total_score += round[1] + 1
+        }
     }
-    println!("Part 2 total score: {}", total_score);
+    let elapsed = start.elapsed();
+    println!("Part 1 total score: {} (took {:.2?})", total_score, elapsed);
+}
+
+fn part_2(input: &Vec<[i32; 2]>) {
+    let start = Instant::now();
+    let mut total_score = 0;
+    let mut round = vec![0, 0];
+    for letters in input {
+        round[0] = letters[0]  - b'A' as i32;
+        round[1] = letters[1]  - b'X' as i32;
+        round[1] = round[0] + round[1] - 1;
+        if round[1] < 0 {
+            round[1] = 2;
+        } else if round[1] > 2 {
+            round[1] = 0
+        }
+        if (round[0] + 1) % 3 == round[1] {
+            // win
+            total_score += 6 + round[1] + 1
+        } else if round[0] == round[1] {
+            // draw
+            total_score += 3 + round[1] + 1
+        } else {
+            // loss
+            total_score += round[1] + 1
+        }
+    }
+    let elapsed = start.elapsed();
+    println!("Part 2 total score: {} (took {:.2?})", total_score, elapsed);
 }
