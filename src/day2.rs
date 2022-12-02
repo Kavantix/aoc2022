@@ -1,5 +1,4 @@
-use std::{fs::read_to_string, vec};
-use std::time::Instant;
+use std::{time::Instant, fs::read_to_string};
 
 
 pub fn run() {
@@ -13,48 +12,43 @@ C Z";
     let elapsed = start.elapsed();
     println!("Parsing took: {:.2?}", elapsed);
 
-    part_1(&parsed);
-    part_2(&parsed);
+    let start = Instant::now();
+    let total_score = part_1(&parsed);
+    let elapsed = start.elapsed();
+    println!("Part 1 total score: {} (took {:.2?})", total_score, elapsed);
+
+    let start = Instant::now();
+    let total_score = part_2(&parsed);
+    let elapsed = start.elapsed();
+    println!("Part 2 total score: {} (took {:.2?})", total_score, elapsed);
 
 }
 
-fn parse_input(input: &str) -> Vec<[i32; 2]> {
+fn parse_input(input: &str) -> Vec<(u8, u8)> {
     let letters = input.as_bytes();
-    let mut rounds = letters.len() / 4;
-    if letters.len() % 4 != 0 {
-        rounds += 1;
-    }
-    let mut result = Vec::with_capacity(rounds);
-    for i in 0..rounds {
-        result.push([letters[i*4] as i32, letters[i*4 + 2] as i32]);
+    let mut i = 0;
+    let mut result = Vec::with_capacity(letters.len());
+    while i < letters.len() - 3 {
+        result.push((letters[i] - b'A', letters[i + 2] - b'X'));
+        i += 4
     }
     result
 }
 
-fn part_1(input: &Vec<[i32; 2]>) {
-    let start = Instant::now();
-    let mut total_score = 0;
-    let mut round = vec![0, 0];
-    for letters in input {
-        round[0] = letters[0]  - b'A' as i32;
-        round[1] = letters[1]  - b'X' as i32;
-        total_score += round[1] + 1 + 3 * ((round[1] - round[0] + 4) % 3);
+fn part_1(input: &Vec<(u8, u8)>) -> u32 {
+    let mut total_score: u32 = 0;
+    for (opponent_pick, my_pick) in input {
+        total_score += (my_pick + 1 + 3 * ((my_pick - opponent_pick + 4) % 3)) as u32;
     }
-    let elapsed = start.elapsed();
-    println!("Part 1 total score: {} (took {:.2?})", total_score, elapsed);
+    total_score
 }
 
-fn part_2(input: &Vec<[i32; 2]>) {
-    let start = Instant::now();
-    let mut total_score = 0;
-    let mut round = vec![0, 0];
-    for letters in input {
-        round[0] = letters[0]  - b'A' as i32;
-        round[1] = letters[1]  - b'X' as i32;
-        let win_score = round[1] * 3;
-        let my_pick = (round[0] + round[1] - 1 + 3) % 3;
-        total_score += my_pick + 1 + win_score;
+fn part_2(input: &Vec<(u8, u8)>) -> u32 {
+    let mut total_score: u32 = 0;
+    for (opponent_pick, outcome) in input {
+        let outcome_score = outcome * 3;
+        let my_pick = (opponent_pick + outcome - 1 + 3) % 3;
+        total_score += (my_pick + 1 + outcome_score) as u32;
     }
-    let elapsed = start.elapsed();
-    println!("Part 2 total score: {} (took {:.2?})", total_score, elapsed);
+    total_score
 }
